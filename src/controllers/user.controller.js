@@ -2,6 +2,7 @@ import { asyncHandler} from '../utils/asyncHandler.js';
 import {ApiError} from '../utils/ApiError.js';
 import {User} from '../models/user.model.js';
 import {uploadOnCloudinary} from "../utils/cloudinary.js"
+import {ApiResponse} from "../utils/ApiResponse.js";
 
 
 const registerUser = asyncHandler(async (req, res)=>{
@@ -15,10 +16,10 @@ const registerUser = asyncHandler(async (req, res)=>{
    //check for the user creation success and send response to frontend
 
 
-   const{fullname,email,username,password} = req.body;
-   console.log("email",email);
+    const{fullname,email,username,password} = req.body;
+    console.log("email",email);
 
-   if (
+    if (
     [fullname, email, username, password].some((field) => field?.trim()==="")
     )
     {
@@ -47,10 +48,26 @@ const registerUser = asyncHandler(async (req, res)=>{
         throw new ApiError(400, "Avatar and Cover Image are required")
     }
 
-    User.create({
+    const user = await User.create({
         fullName,
-        avatar: avatar.url
+        avatar: avatar.url,
+        coverImage: coverImage?.url || "",
+        email,
+        password,
+        username: username.tolowerCase()
     })
+
+    const createdUser = User.findById(user._id).select(
+        "-password -refreshToken"
+    )
+    if (!createdUser) {
+        throw new ApiError(500, "something went wrong while registering the user")
+
+    }
+
+    return res.status(201).json(
+        new ApiResponse(200, createdUser, "User Registered Successfully")
+    )
 
 
 
