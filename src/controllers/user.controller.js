@@ -3,7 +3,9 @@ import { ApiError } from '../utils/ApiError.js';
 import { User } from '../models/user.model.js';
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import fs from "fs"; // Imported to clean up local files
+import fs, { access } from "fs"; // Imported to clean up local files
+import { check } from 'prettier';
+import { TokenExpiredError } from 'jsonwebtoken';
 
 const registerUser = asyncHandler(async (req, res) => {
     // 1. Get user details from request body
@@ -67,7 +69,14 @@ const registerUser = asyncHandler(async (req, res) => {
 });
 
 const loginUser = asyncHandler(async (req,res) =>{
-    
+    //request body -> data
+    // username or email
+    // find the user
+    // password check
+    // access and refresh Token
+    // send cookie
+
+    const{email, username, password} = req.body
 })
 
 export { registerUser };
